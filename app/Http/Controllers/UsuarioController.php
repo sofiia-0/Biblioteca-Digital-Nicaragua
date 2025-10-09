@@ -2,76 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Usuario;
+use App\Http\Requests\StoreUsuarioRequest;
+use App\Http\Requests\UpdateUsuarioRequest;
 use App\Http\Resources\UsuarioResource;
-
+use App\Models\Usuario;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class UsuarioController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $query = Usuario::query();
 
         if ($s = $request->query('search')) {
-            $query->where('nombre', 'like', "%$s%")
-                  ->orWhere('apellido', 'like', "%$s%")
-                  ->orWhere('email', 'like', "%$s%");
+            $query->where('nombre', 'like', "%{$s}%")
+                  ->orWhere('apellido', 'like', "%{$s}%")
+                  ->orWhere('email', 'like', "%{$s}%");
         }
 
         return UsuarioResource::collection(
-            $query->orderBy("usuario_id", "desc")->paginate(9)
+            $query->orderBy('usuario_id', 'desc')->paginate(5)
         );
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreUsuarioRequest $request)
     {
-        //
+        $data = $request->validated();
+        $usuario = Usuario::create($data);
+
+        return (new UsuarioResource($usuario))
+            ->response()
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show(Usuario $usuario)
     {
-        //
+        return new UsuarioResource($usuario);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(UpdateUsuarioRequest $request, Usuario $usuario)
     {
-        //
+        $data = $request->validated();
+        $usuario->update($data);
+
+        return new UsuarioResource($usuario);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function destroy(Usuario $usuario)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $usuario->delete();
+        return response()->noContent();
     }
 }
