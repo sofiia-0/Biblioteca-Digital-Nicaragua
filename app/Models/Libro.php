@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Libro extends Model
 {
     protected $table = "Libros";
-    protected $primarykey = "libro_id";
+
+    protected $primaryKey = "libro_id"; 
+
     protected $fillable = [
         'titulo',
         'autor',
@@ -22,6 +24,7 @@ class Libro extends Model
         'updated_at'
     ];
 
+    // Relación con Prestamo
     public function prestamos()
     {
         return $this->hasMany(Prestamo::class, 'libro_id', 'libro_id');

@@ -17,12 +17,11 @@ class LibroResource extends JsonResource
             'isbn' => $this->isbn,
             'anio_publicacion' => $this->anio_publicacion,
             'editorial' => $this->editorial,
+            'categoria' => $this->categoria,
             'cantidad_ejemplares' => $this->cantidad_ejemplares,
             'cantidad_disponible' => $this->cantidad_disponible,
             'estado' => $this->estado,
             'imagen_url' => $this->imagen_url,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }

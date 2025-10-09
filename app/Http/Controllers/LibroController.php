@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreLibroRequest;
 use App\Http\Resources\LibroResource;
 use App\Models\Libro;
 use Illuminate\Http\Request;
@@ -11,20 +12,19 @@ class LibroController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-    $query = Libro::query();
+        $query = Libro::query();
 
-    if ($s = request()->query('search')) {
-        $query->where('titulo', 'like', "%$s%")
-              ->orWhere('autor', 'like', "%$s%");
+        if ($s = $request->query('search')) {
+            $query->where('titulo', 'like', "%$s%")
+                  ->orWhere('autor', 'like', "%$s%");
+        }
+
+        return LibroResource::collection(
+            $query->orderBy('libro_id', 'desc')->paginate(9)
+        );
     }
-
-    return LibroResource::collection(
-        $query->orderBy("libro_id", "desc")->paginate(9)
-    );
-    }
-
 
     /**
      * Show the form for creating a new resource.
@@ -37,9 +37,10 @@ class LibroController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreLibroRequest $request)
     {
-        //
+        $libro = Libro::create($request->validated());
+        return new LibroResource($libro);
     }
 
     /**
@@ -47,7 +48,7 @@ class LibroController extends Controller
      */
     public function show(Libro $libro)
     {
-        //
+        return new LibroResource($libro);
     }
 
     /**
@@ -61,9 +62,10 @@ class LibroController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Libro $libro)
+    public function update(StoreLibroRequest $request, Libro $libro)
     {
-        //
+        $libro->update($request->validated());
+        return new LibroResource($libro);
     }
 
     /**
@@ -71,6 +73,9 @@ class LibroController extends Controller
      */
     public function destroy(Libro $libro)
     {
-        //
+        $libro->delete();
+        return response()->json([
+            'message' => 'Libro eliminado correctamente'
+        ], 200);
     }
 }
